@@ -11,8 +11,7 @@ fontsize: 2em
 
 ## Introduction
 
-
-Big data, the herald of artificial intelligence and data science. 
+Big data, the herald of artificial intelligence and data science.
 
 ```{r}
 #| label: load packages
@@ -191,8 +190,11 @@ p<-ggplot(combined) +
 
 p
 ```
+
 ## Course Enrolment
-Top courses enrolled for in UK higher institutions. Computing ranks 6th. 
+
+Top courses enrolled for in UK higher institutions. Computing ranks 6th.
+
 ```{r}
 #| echo: false
 #| message: false
@@ -241,8 +243,11 @@ combined_2|>slice(1:10)|>
         axis.text.x = element_blank(), 
         axis.text.y = element_text(size = 15))
 ```
+
 ## 
+
 The rate of enrollment over the last 3 however shows a different picture
+
 ```{r}
 #| echo: false
 f_plot<-combined_2|>slice(1:10)|>select(`Subject of study`,increase, first, second, third)|>pivot_longer(!c(`Subject of study`, increase), names_to = 'Period', values_to = 'change')
@@ -272,10 +277,13 @@ ggplot()+
         axis.text.y = element_blank(), 
         )
 ```
-##
+
+## 
+
 ### Share of students among Welsh universities
-* The University of Wales Trinity Saint David (UWTSD) to its credit enrolled a substantial number of students in Business and computing.
-* However it lacks in other areas like computing. Only making up 10.3% of students in Universities in Wales
+
+-   The University of Wales Trinity Saint David (UWTSD) to its credit enrolled a substantial number of students in Business and computing.
+-   However it lacks in other areas like computing. Only making up 10.3% of students in Universities in Wales
 
 ```{r}
 #| echo: false
@@ -314,8 +322,10 @@ Top_unis|>
 ```
 
 ## How can it tackle this
-* Understanding the courses in demand
-* Upward Tredn in postgraduate taught programs
+
+-   Understanding the courses in demand
+-   Upward Tredn in postgraduate taught programs
+
 ```{r}
 #| echo: false
 #| message: false
@@ -354,12 +364,15 @@ trending_course|>
 ```
 
 ## what to do ?
-* More post graduate taught courses in computing.
-* More niche departments - AI in healthcare, AI in finance.
+
+-   More post graduate taught courses in computing.
+-   More niche departments - AI in healthcare, AI in finance.
 
 ## who to target
-* mostly studued by non - uk studnets
-* uwstd needs to create more attractive post graduate taugh programs and AI is the way.
+
+-   mostly studued by non - uk studnets
+-   uwstd needs to create more attractive post graduate taugh programs and AI is the way.
+
 ```{r}
 #| echo: false
 #| message: false
