@@ -1,6 +1,6 @@
 ---
 title: "Insight Analysis Into Course Trend"
-author: "Toochukwu"
+author: "Toochukwu Ogbonna"
 smaller: True
 date: "`r Sys.Date()`"
 footer: 'Presentation at University of Wales Trinity Saint david'
