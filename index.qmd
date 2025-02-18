@@ -1,0 +1,369 @@
+---
+title: "Insight Analysis Into Course Trend"
+author: "Toochukwu"
+smaller: True
+date: "`r Sys.Date()`"
+footer: 'Presentation at University of Wales Trinity Saint david'
+format: revealjs
+editor: visual
+fontsize: 2em
+---
+
+## Introduction
+
+
+Big data, the herald of artificial intelligence and data science. 
+
+```{r}
+#| label: load packages
+#| echo: false
+#| message: false
+#| warning: false
+pacman::p_load(
+  readr,
+  tidyverse, 
+  showtext, #to utilise google fonts and other fonts
+  ggtext,
+  DT
+)
+
+font.add.google("Smooch Sans", "PI")
+font.add.google('Roboto Mono', 'roboto')
+showtext_auto()
+
+theme_custom <- function (base_size = 15, base_family = "PI") {
+  half_line <- base_size/2
+  theme(
+    line = element_blank(),
+    rect = element_rect(fill = "#F7F3E3", color = NA,
+                        linewidth = NA, linetype = 1),
+    text = element_text(family = base_family, face = "plain",
+                        color = "black", size = base_size,
+                        lineheight = .9, hjust = .5, vjust = .5,
+                        angle = 0, margin = margin(), debug = FALSE),
+    axis.line = element_blank(),
+    axis.line.x = NULL,
+    axis.line.y = NULL,
+    axis.text = element_text(size = base_size * 1.1, color = "gray30"),
+    axis.text.x = element_text(margin = margin(t = .8 * half_line/2),
+                               vjust = 1),
+    axis.text.x.top = element_text(margin = margin(b = .8 * half_line/2),
+                                   vjust = 0),
+    axis.text.y = element_text(margin = margin(r = .8 * half_line/2),
+                               hjust = 1),
+    axis.text.y.right = element_text(margin = margin(l = .8 * half_line/2),
+                                     hjust = 0),
+    axis.ticks = element_line(color = "gray30", linewidth = .7),
+    axis.ticks.length = unit(half_line / 1.5, "pt"),
+    axis.ticks.length.x = NULL,
+    axis.ticks.length.x.top = NULL,
+    axis.ticks.length.x.bottom = NULL,
+    axis.ticks.length.y = NULL,
+    axis.ticks.length.y.left = NULL,
+    axis.ticks.length.y.right = NULL,
+    axis.title.x = element_blank(),
+    axis.title.x.top = element_text(margin = margin(b = half_line),
+                                    vjust = 0),
+    axis.title.y = element_blank(),
+    axis.title.y.right = element_text(angle = -90, vjust = 0,
+                                      margin = margin(l = half_line)),
+    legend.background = element_rect(color = NA),
+    legend.spacing = unit(.4, "cm"),
+    legend.spacing.x = NULL,
+    legend.spacing.y = NULL,
+    legend.margin = margin(.2, .2, .2, .2, "cm"),
+    legend.key = element_rect(fill = "gray95", color = "white"),
+    legend.key.size = unit(1.2, "lines"),
+    legend.key.height = NULL,
+    legend.key.width = NULL,
+    legend.text = element_text(size = rel(.8)),
+    legend.text.align = NULL,
+    legend.title = element_text(hjust = 0),
+    legend.title.align = NULL,
+    legend.position = "right",
+    legend.direction = NULL,
+    legend.justification = "center",
+    legend.box = NULL,
+    legend.box.margin = margin(0, 0, 0, 0, "cm"),
+    legend.box.background = element_blank(),
+    legend.box.spacing = unit(.4, "cm"),
+    panel.background = element_rect(fill = NA, color = NA),
+    panel.border = element_rect(color = NULL,
+                                fill = NA, linewidth = NULL),
+    panel.grid.major = element_line(color = "gray90", linewidth = 1),
+    panel.grid.minor = element_line(color = "gray90", linewidth = .5,
+                                    linetype = "dashed"),
+    panel.spacing = unit(base_size, "pt"),
+    panel.spacing.x = NULL,
+    panel.spacing.y = NULL,
+    panel.ontop = FALSE,
+    strip.background = element_rect(fill = "white", color = "gray30"),
+    strip.text = element_text(color = "black", size = base_size),
+    strip.text.x = element_text(margin = margin(t = half_line,
+                                                b = half_line)),
+    strip.text.y = element_text(angle = -90,
+                                margin = margin(l = half_line,
+                                                r = half_line)),
+    strip.text.y.left = element_text(angle = 90),
+    strip.placement = "inside",
+    strip.placement.x = NULL,
+    strip.placement.y = NULL,
+    strip.switch.pad.grid = unit(0.1, "cm"),
+    strip.switch.pad.wrap = unit(0.1, "cm"),
+    plot.background = element_rect(color = NA),
+    plot.title = element_text(size = base_size *2, hjust = 0,
+                              vjust = 1, face = "bold",
+                              margin = margin(b = half_line/2)),
+    plot.title.position = "plot",
+    plot.subtitle = element_text(size = base_size * 1.3,
+                                 hjust = 0, vjust = 1,
+                                 margin = margin(b = half_line /2)),
+    plot.caption = element_text(size = rel(0.9), hjust = 1, vjust = 1,
+                                margin = margin(t = half_line * .9)),
+    plot.caption.position = "plot",
+    plot.tag = element_text(size = rel(1.2), hjust = .5, vjust = .5),
+    plot.tag.position = "topleft",
+    plot.margin = margin(20, 30, 20, 30),
+    complete = TRUE
+  )
+}
+
+theme_set(theme_custom())
+
+##custom colors
+colors<-c('#87CEEB', '#0D3B66', '#254441', '#DB504A', '#F5F4EF')
+
+#function to clean data
+clean_data<-function(df){
+  df_<-str_split_fixed(df$`Category: All categories`, ',', 2)
+  df_<-as.data.frame(df_)
+  df_<-df_|>rename(time = 'V1', trend = 'V2')
+  df_<-df_|>mutate(trend = as.numeric(trend))
+  return(df_)
+  
+}
+
+#importing datasets
+ai <- read_csv("ai.csv")|>slice(2:n())
+big_data<-big_data <- read_csv("big data.csv")|>slice(2:n())
+data_eng<-read_csv("data eng.csv")|>slice(2:n())
+ds<- read_csv("ds.csv")|>slice(2:n())
+
+######clean data
+clean_ai<-clean_data(ai)
+clean_big_data<-clean_data(big_data)
+clean_ds<-clean_data(ds)
+clean_data_eng<-clean_data(data_eng)
+
+combined<-clean_ai|>
+  left_join(clean_big_data,join_by(time))|>
+  left_join(clean_ds,join_by(time))|>
+  left_join(clean_data_eng,join_by(time))|>
+  rename(ai = trend.x, big_data = trend.y, ds = trend.x.x, eng = trend.y.y)
+
+
+combined<-combined|>
+  mutate(year = str_sub(time, 1, 4))|>select(-time)|>
+  group_by(year)|>
+  summarise(across(everything(), sum))|>
+  filter(!(year%in%c('2004', '2005', '2007', '2025')))
+
+
+p<-ggplot(combined) +
+    geom_line(aes(x = year, y = ai, group = 1), color = '#0D3B66') +
+    geom_line(aes(x = year, y = big_data, group = 1), color = "#87CEEB") +
+    geom_line(aes(x = year, y = ds, group = 1), color = '#254441') +
+    geom_line(aes(x = year, y = eng, group = 1), color = '#DB504A') +
+  labs(
+       title = "Google Trends from 2006 - 2024", 
+       subtitle = "Trends for <span style = 'color:#87CEEB;'>Big data</span>, 
+       <span style = 'color:#0D3B66;'>AI</span>, 
+       <span style = 'color:#254441;'>Data science</span> and 
+       <span style = 'color:#DB504A;'>Data engineering</span>",
+       caption = 'data from Google trends') +
+  annotate(geom = 'segment', x= '2015', xend = '2015', y =0, yend = 1050, color = 'blue') +
+  annotate(geom = 'segment', x= '2022', xend = '2022', y =0, yend = 1050, color = 'blue') +
+  annotate("text", x = '2014', y = 1000, label = 'Open Ai was founded') +
+  annotate("text", x = '2021', y = 1000, label = 'Chat GPT was released') +
+  theme(plot.subtitle = element_textbox_simple(size = 18, family = 'roboto'),
+        title = element_text(family = 'roboto'), 
+        axis.text.y = element_blank()) 
+
+p
+```
+## Course Enrolment
+Top courses enrolled for in UK higher institutions. Computing ranks 6th. 
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+course_1920 <- read_csv("course 1920.csv")|>select(`Subject of study`, Total)
+course_2021 <- read_csv("course 2021.csv")|>select(`Subject of study`, Total)
+course_2122 <- read_csv("course 2122.csv")|>select(`Subject of study`, Total)
+course_2223 <- read_csv("course 2223.csv")|>select(`Subject of study`, Total)
+
+combined_2<-course_1920|>
+  left_join(course_2021, join_by(`Subject of study`))|>
+  left_join(course_2122, join_by(`Subject of study`))|>
+  left_join(course_2223, join_by(`Subject of study`))|>
+  rename(`19/20` = Total.x, `20/21` = Total.y, `21/22` = Total.x.x, `22/23` = Total.y.y)|>
+  mutate(
+    total = `19/20` + `20/21` + `21/22` + `22/23`,
+    first = round(((`20/21` - `19/20`)/`19/20`) * 100, 2), 
+    second = round(((`21/22` - `20/21`)/`20/21`) * 100, 2), 
+    third = round(((`22/23` - `21/22`)/`21/22`) * 100, 2), 
+    sum = first + second + third
+  )|>arrange(desc(total))|>slice(4:n())|>
+  mutate(`Subject of study` = str_sub(`Subject of study`, start = 4, end = -1L))|>
+  mutate(increase = ifelse(third>second, 'yes', 'no'))
+
+
+combined_2|>slice(1:10)|>
+  ggplot() +
+  geom_col(aes(x=reorder(`Subject of study`, -total), y = total), fill = '#084887', width = 0.5)+
+  ggrepel::geom_text_repel(aes(x =reorder(`Subject of study`, -total), y=total, label = `Subject of study`),
+                           size = 8,
+                           hjust = 0,
+                           nudge_x = 0.5,
+                           segment.size = .7,
+                           segment.alpha = .5,
+                           segment.linetype = "dotted",
+                           box.padding = .4,
+                           segment.curvature = -0.1,
+                           segment.ncp = 1,
+                           color= 'black'
+                           ) +
+  labs(
+    title = "Courses in demand", 
+    subtitle = "Top 10 courses groups enrolled in from 19/20 - 21-22") +
+  theme(plot.subtitle = element_text(family = 'roboto', size =20),
+        title = element_text(family = 'roboto'), 
+        axis.text.x = element_blank(), 
+        axis.text.y = element_text(size = 15))
+```
+## 
+The rate of enrollment over the last 3 however shows a different picture
+```{r}
+#| echo: false
+f_plot<-combined_2|>slice(1:10)|>select(`Subject of study`,increase, first, second, third)|>pivot_longer(!c(`Subject of study`, increase), names_to = 'Period', values_to = 'change')
+
+ggplot()+
+  geom_line(f_plot, mapping = aes(x=Period, y=change, group = `Subject of study`))+
+  ggrepel::geom_text_repel(f_plot, mapping = aes(x = Period, y = change, label = change), size = 5) +
+  gghighlight::gghighlight(increase == 'yes', use_direct_label = FALSE) +
+  ggrepel::geom_text_repel(f_plot|>filter(Period == 'first'), mapping = aes(x = Period, y = change, label = `Subject of study`),
+                           size = 5,
+                           hjust = 0,
+                           nudge_x = -.4,
+                           segment.size = .7,
+                           segment.alpha = .5,
+                           segment.linetype = "dotted",
+                           box.padding = .4,
+                           segment.curvature = -0.1,
+                           segment.ncp = 1,
+                           color= 'blue') +
+  scale_x_discrete(expand = expansion(0), labels = c('19/20 - 20/21', '20/21 - 21/22', '21/22 - 22/23'))+
+  labs(
+    title = "Change in course enrolment over the last 3 years", 
+    subtitle = "High scores in 19/20 possibley due to back log of Covid 19.<br> Only 'Computing' and 'Biological and sports science' show upward trends in the latest data") +
+  theme(plot.subtitle = element_markdown(family = 'roboto'),
+        title = element_text(family = 'roboto'), 
+        axis.text.x = element_text(size = 16, family = 'roboto'), 
+        axis.text.y = element_blank(), 
+        )
+```
+##
+### Share of students among Welsh universities
+* The University of Wales Trinity Saint David (UWTSD) to its credit enrolled a substantial number of students in Business and computing.
+* However it lacks in other areas like computing. Only making up 10.3% of students in Universities in Wales
+
+```{r}
+#| echo: false
+course_and_uni <- read_csv("course and uni.csv")|>slice(1:12)|>select(-UKPRN)|>
+  pivot_longer(!(`HE provider`), names_to = 'Courses', values_to = 'value')|>
+  group_by(Courses)|>mutate(average = round(value/sum(value) * 100, 2))|>ungroup()
+  
+main_uni<-course_and_uni|>filter(Courses == 'Total')|>arrange(desc(average))|>slice(1:5)|>select(`HE provider`)
+
+top_courses<-f_plot|>select(`Subject of study`)|>distinct()
+
+Top_unis<-course_and_uni|>
+  mutate(Courses = str_sub(Courses, start = 4, end = -1L))|>
+  inner_join(top_courses, join_by(Courses == `Subject of study`))|>
+  rename(University = `HE provider`)
+
+colooor<-c("#FFD9DA", "#EA638C", "#89023E", "#30343F", "#1B2021", "#2D728F", "#ECA72C", "#FF7F00" ,"#CBE896", "#1D7874", '#084887', '#585123')
+
+
+Top_unis|>
+  ggplot(aes(x = Courses, y = average, fill = University, label = University))+
+  geom_bar(position = 'fill', stat = 'identity', width = 0.6)+
+  scale_fill_manual(values = colooor) +
+  geom_text(aes(label = ifelse(University == 'University of Wales Trinity Saint David', average, "")), 
+            position = position_fill(vjust = 0.5),  # Centers text inside bars
+            color = "white", size = 4) +
+  coord_flip() +
+  labs(
+    title = "Popular courses in Welsh Universities", 
+    subtitle = "Share of students between courses among Welsh Universities") + 
+  theme(plot.subtitle = element_text(family = 'roboto', size =18),
+        title = element_text(family = 'roboto'), 
+        axis.text.x = element_blank(),
+        legend.text = element_text(family = 'roboto'),
+        axis.text.y = element_text(family = 'roboto', size = 20))
+```
+
+## How can it tackle this
+* Understanding the courses in demand
+* Upward Tredn in postgraduate taught programs
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+trending_course <- read_csv("trnding course.csv")
+
+trending_course<-trending_course|>
+  pivot_longer(!(`Academic year`), names_to = 'course', values_to = 'values')|>
+  mutate(num = row_number())
+
+options(scipen=999)
+trending_course|>
+  ggplot(aes(x = `Academic year`, y= values, group = course, color = course))+
+  geom_line() +
+  ggrepel::geom_text_repel(aes(label = ifelse(num %in% c(37, 38, 39, 40), course, '')),
+                           size = 5,
+                           hjust = 0,
+                           nudge_x = 1.5,
+                           segment.size = .7,
+                           segment.alpha = .5,
+                           segment.linetype = "dotted",
+                           box.padding = .4,
+                           segment.curvature = -0.1,
+                           segment.ncp = 1,
+                           color= 'blue')+
+  scale_y_continuous(breaks = seq(0, 600000, 100000)) +
+  scale_color_manual(values = colooor[8:11]) +
+  labs(
+    title = "Popular forms of enrolment", 
+    subtitle = "Steady rise in First degree enrolments howere, more rapid rise in post-graduate taught programs") + 
+  theme(plot.subtitle = element_text(family = 'roboto', size =15),
+        title = element_text(family = 'roboto'), 
+         
+        axis.text = element_text(family = 'roboto', size = 15), 
+        legend.position = 'none')
+```
+
+## what to do ?
+* More post graduate taught courses in computing.
+* More niche departments - AI in healthcare, AI in finance.
+
+## who to target
+* mostly studued by non - uk studnets
+* uwstd needs to create more attractive post graduate taugh programs and AI is the way.
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+table<- read_csv("trt_again.csv")|>select(University, `Total UK` : `Total Non-UK`)|>drop_na()
+datatable(table)
+```
