@@ -11,7 +11,7 @@ fontsize: 2em
 
 ## Introduction
 
-Big data, the herald of artificial intelligence and data science.
+Big Data: The Driving Force Behind Artificial Intelligence and Data Science.
 
 ```{r}
 #| label: load packages
@@ -193,7 +193,7 @@ p
 
 ## Course Enrolment
 
-Top courses enrolled for in UK higher institutions. Computing ranks 6th.
+Top courses enrolled in at UK higher education institutions. Computing ranks 6th.
 
 ```{r}
 #| echo: false
@@ -246,7 +246,7 @@ combined_2|>slice(1:10)|>
 
 ## 
 
-The rate of enrollment over the last 3 however shows a different picture
+The rate of enrollment over the last 3 years, however, shows a different picture
 
 ```{r}
 #| echo: false
@@ -270,7 +270,7 @@ ggplot()+
   scale_x_discrete(expand = expansion(0), labels = c('19/20 - 20/21', '20/21 - 21/22', '21/22 - 22/23'))+
   labs(
     title = "Change in course enrolment over the last 3 years", 
-    subtitle = "High scores in 19/20 possibley due to back log of Covid 19.<br> Only 'Computing' and 'Biological and sports science' show upward trends in the latest data") +
+    subtitle = "High scores in 19/20 possibly due to back-log of COVID-19.<br> Only 'Computing' and 'Biological and sports science' show upward trends in the latest data") +
   theme(plot.subtitle = element_markdown(family = 'roboto'),
         title = element_text(family = 'roboto'), 
         axis.text.x = element_text(size = 16, family = 'roboto'), 
@@ -283,7 +283,7 @@ ggplot()+
 ### Share of students among Welsh universities
 
 -   The University of Wales Trinity Saint David (UWTSD) to its credit enrolled a substantial number of students in Business and computing.
--   However it lacks in other areas like computing. Only making up 10.3% of students in Universities in Wales
+-   However, it lacks in other areas such as computing. It accounts for only 10.3% of students in Welsh universities.
 
 ```{r}
 #| echo: false
@@ -321,10 +321,9 @@ Top_unis|>
         axis.text.y = element_text(family = 'roboto', size = 20))
 ```
 
-## How can it tackle this
+## What can be done
 
--   Understanding the courses in demand
--   Upward Tredn in postgraduate taught programs
+-   Get ahead of the trend
 
 ```{r}
 #| echo: false
@@ -355,7 +354,7 @@ trending_course|>
   scale_color_manual(values = colooor[8:11]) +
   labs(
     title = "Popular forms of enrolment", 
-    subtitle = "Steady rise in First degree enrolments howere, more rapid rise in post-graduate taught programs") + 
+    subtitle = "Steady rise in first-degree enrolments however, more rapid rise in postgraduate taught programs") + 
   theme(plot.subtitle = element_text(family = 'roboto', size =15),
         title = element_text(family = 'roboto'), 
          
@@ -363,16 +362,16 @@ trending_course|>
         legend.position = 'none')
 ```
 
-## what to do ?
+## What to do ?
 
+-   More undergraduate computing courses - sub specializations in data.
 -   More post graduate taught courses in computing.
 -   More niche departments - AI in healthcare, AI in finance.
 
-## who to target
+## Post graduate research students
 
--   mostly studued by non - uk studnets
--   uwstd needs to create more attractive post graduate taugh programs and AI is the way.
-
+-   Non Uk students
+-   UWSTD needs to create more attractive post graduate taugh programs and AI is the way.
 ```{r}
 #| echo: false
 #| message: false
@@ -380,3 +379,6 @@ trending_course|>
 table<- read_csv("trt_again.csv")|>select(University, `Total UK` : `Total Non-UK`)|>drop_na()
 datatable(table)
 ```
+
+## Conclusion
+The analysis of enrollment trends in UK higher education institutions reveals significant insights into student preferences and the impact of external factors such as the COVID-19 pandemic. While business-related courses continue to dominate, computing and technology-related fields show potential for growth. The post-pandemic surge in postgraduate enrollment suggests an increasing demand for specialized knowledge and skills.
